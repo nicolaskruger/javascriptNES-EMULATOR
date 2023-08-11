@@ -1,5 +1,5 @@
 import { initializeCpu } from "../cpu/cpu";
-import { Bus, initializeBus, readBuz } from "./bus";
+import { Bus, initializeBus, readBuz, writeBus } from "./bus";
 
 describe("bus", () => {
   it("initialize bus", () => {
@@ -27,5 +27,21 @@ describe("bus", () => {
     const bus = initializeBus();
 
     expect(readBuz(bus, 1)).toBe(0);
+  });
+
+  it("should not write on bus when exceed your limit", () => {
+    const bus = initializeBus();
+
+    const newBus = writeBus(bus, 0x10000, 1);
+
+    newBus.ram.forEach((v) => expect(v).toBe(0));
+  });
+
+  it("should write a value on the bus", () => {
+    const bus = initializeBus();
+
+    const newBus = writeBus(bus, 2, 1);
+
+    expect(readBuz(newBus, 2)).toBe(1);
   });
 });
