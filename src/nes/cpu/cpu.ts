@@ -1,3 +1,6 @@
+import { readBuz } from "../bus/bus";
+import { NES } from "../nes";
+
 type Cpu = {
   // registers
   a: number;
@@ -9,18 +12,18 @@ type Cpu = {
   // helpers
   fetched: number;
   temp: number;
-  addr_abs: number;
-  addr_rel: number;
+  addrAbs: number;
+  addrRel: number;
   opcode: number;
   cycles: number;
-  clock_count: number;
+  clockCount: number;
 };
 
 const initializeCpu = (): Cpu => ({
   a: 0,
-  addr_abs: 0,
-  addr_rel: 0,
-  clock_count: 0,
+  addrAbs: 0,
+  addrRel: 0,
+  clockCount: 0,
   cycles: 0,
   fetched: 0,
   opcode: 0,
@@ -32,6 +35,67 @@ const initializeCpu = (): Cpu => ({
   y: 0,
 });
 
-export { initializeCpu };
+const CARRY_BIT = 1;
+const ZERO = 1 << 1;
+const DISABLE_INTERRUPT = 1 << 2;
+const DECIMAL_MODE = 1 << 3;
+const BREAK = 1 << 4;
+const UNUSED = 1 << 5;
+const OVERFLOW = 1 << 6;
+const NEGATIVE = 1 << 7;
+
+const reset = (nes: NES): NES => {
+  const { bus, cpu } = nes;
+
+  const add = 0xfffc;
+
+  const lo = readBuz(bus, add);
+  const hi = readBuz(bus, add + 1);
+
+  const pc = (hi << 8) + lo;
+
+  const a = 0;
+  const x = 0;
+  const y = 0;
+  const stkp = 0xfd;
+  const status = UNUSED;
+
+  const addrRel = 0;
+  const addrAbs = 0;
+
+  const fetched = 0;
+
+  const cycles = 8;
+
+  return {
+    ...nes,
+    cpu: {
+      ...cpu,
+      pc,
+      a,
+      x,
+      stkp,
+      y,
+      status,
+      addrAbs,
+      addrRel,
+      fetched,
+      cycles,
+    },
+  };
+};
+
+export { initializeCpu, reset };
+
+export {
+  CARRY_BIT,
+  ZERO,
+  DISABLE_INTERRUPT,
+  DECIMAL_MODE,
+  BREAK,
+  UNUSED,
+  OVERFLOW,
+  NEGATIVE,
+};
 
 export { Cpu };

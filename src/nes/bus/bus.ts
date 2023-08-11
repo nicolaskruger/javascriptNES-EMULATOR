@@ -1,10 +1,12 @@
+import { mask8bit } from "../../util/calculator/mask";
+
 type Bus = {
   ram: number[];
 };
 
 const readBuz = (bus: Bus, index: number) => {
   if (index >= 0x000 && index <= 0xffff) {
-    return bus.ram[index];
+    return mask8bit(bus.ram[index]);
   }
   return 0x00;
 };
