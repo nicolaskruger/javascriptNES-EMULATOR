@@ -2,9 +2,14 @@ type Bus = {
   ram: number[];
 };
 
-const readBuz = (buz: Bus, index: number) => 1;
+const readBuz = (bus: Bus, index: number) => {
+  if (index >= 0x000 && index <= 0xffff) {
+    return bus.ram[index];
+  }
+  return 0x00;
+};
 
-const writeBus = (buz: Bus, index: number, value: number): Bus => buz;
+const writeBus = (bus: Bus, index: number, value: number): Bus => bus;
 
 const initializeBus = (): Bus => ({
   ram: "_"
