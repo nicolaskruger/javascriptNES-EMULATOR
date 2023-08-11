@@ -9,7 +9,17 @@ const readBuz = (bus: Bus, index: number) => {
   return 0x00;
 };
 
-const writeBus = (bus: Bus, index: number, value: number): Bus => bus;
+const writeBus = (bus: Bus, index: number, value: number): Bus => {
+  if (index >= 0x000 && index <= 0xffff) {
+    return {
+      ...bus,
+      ram: bus.ram.map((v, i) => (i === index ? value : v)),
+    };
+  }
+  return {
+    ...bus,
+  };
+};
 
 const initializeBus = (): Bus => ({
   ram: "_"
