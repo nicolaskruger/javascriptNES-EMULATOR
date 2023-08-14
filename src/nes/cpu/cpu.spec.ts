@@ -6,6 +6,7 @@ import {
   UNUSED,
   getFlag,
   initializeCpu,
+  irq,
   reset,
   setFlag,
 } from "./cpu";
@@ -80,5 +81,47 @@ describe("cpu", () => {
     cpu = setFlag(CARRY_BIT, 0, cpu);
 
     expect(cpu.status).toBe(0);
+  });
+
+  it("should not interrupt when flag active", () => {
+    const nes = initializeNes();
+
+    expect(irq(nes)).toStrictEqual(nes);
+  });
+
+  it("should perform an interrupt", () => {
+    let nes = initializeNes();
+
+    const { cpu } = nes;
+
+    cpu.stkp = 0xff;
+
+    cpu.pc = 0xf0f1;
+
+    nes.bus.ram[0xffff] = 0xff;
+
+    nes = irq(nes);
+
+    const { bus } = nes;
+
+    const { ram } = bus;
+
+    expect(ram[0x01ff]).toBe(0xf0);
+    expect(ram[0x01fe]).toBe(0xf1);
+
+    const { status, stkp, addrAbs, pc, cycles } = nes.cpu;
+
+    //00100100
+    expect(status).toBe(0x24);
+
+    expect(ram[0x01fd]).toBe(0x24);
+
+    expect(stkp).toBe(0xfd);
+
+    expect(addrAbs).toBe(0xfffe);
+
+    expect(pc).toBe(0xff00);
+
+    expect(cycles).toBe(7);
   });
 });

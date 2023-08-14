@@ -101,7 +101,13 @@ const reset = (nes: NES): NES => {
   };
 };
 
-export { initializeCpu, reset, getFlag, setFlag };
+const irq = (nes: NES): NES => {
+  return {
+    ...nes,
+  };
+};
+
+export { initializeCpu, reset, getFlag, setFlag, irq };
 
 export {
   CARRY_BIT,
