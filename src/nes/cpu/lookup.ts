@@ -41,10 +41,21 @@ const ZP0 = (nes: NES): ReturnInstruct => {
     nes,
   };
 };
+
+const ZP = (nes: NES, offset: number): NES => {
+  const { cpu, bus } = nes;
+
+  cpu.addrAbs = mask8bit(readBuz(bus, cpu.pc++) + offset);
+
+  return {
+    ...nes,
+  };
+};
+
 const ZPX = (nes: NES): ReturnInstruct => {
   return {
     cycles: 0,
-    nes,
+    nes: ZP(nes, nes.cpu.x),
   };
 };
 const ZPY = (nes: NES): ReturnInstruct => {
@@ -700,4 +711,4 @@ const lookup: Instruction[] = [
   { addrMode: XXX, operate: IMP, cycles: 7 },
 ];
 
-export { IMP, IMM, ZP0 };
+export { IMP, IMM, ZP0, ZPX };
