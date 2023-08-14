@@ -1,3 +1,5 @@
+import { mask8bit } from "../../util/calculator/mask";
+import { readBuz } from "../bus/bus";
 import { NES } from "../nes";
 
 type ReturnInstruct = {
@@ -30,6 +32,10 @@ const IMM = (nes: NES): ReturnInstruct => {
   };
 };
 const ZP0 = (nes: NES): ReturnInstruct => {
+  const { cpu, bus } = nes;
+
+  cpu.addrAbs = mask8bit(readBuz(bus, cpu.pc++));
+
   return {
     cycles: 0,
     nes,
@@ -694,4 +700,4 @@ const lookup: Instruction[] = [
   { addrMode: XXX, operate: IMP, cycles: 7 },
 ];
 
-export { IMP, IMM };
+export { IMP, IMM, ZP0 };
