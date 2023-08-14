@@ -44,6 +44,10 @@ const UNUSED = 1 << 5;
 const OVERFLOW = 1 << 6;
 const NEGATIVE = 1 << 7;
 
+const getFlag = (flag: number, cpu: Cpu): number => {
+  return 0;
+};
+
 const reset = (nes: NES): NES => {
   const { bus, cpu } = nes;
 
@@ -85,7 +89,7 @@ const reset = (nes: NES): NES => {
   };
 };
 
-export { initializeCpu, reset };
+export { initializeCpu, reset, getFlag };
 
 export {
   CARRY_BIT,

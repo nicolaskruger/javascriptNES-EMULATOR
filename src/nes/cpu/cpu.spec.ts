@@ -1,6 +1,6 @@
 import { writeBus } from "../bus/bus";
 import { initializeNes } from "../nes";
-import { Cpu, UNUSED, initializeCpu, reset } from "./cpu";
+import { CARRY_BIT, Cpu, UNUSED, getFlag, initializeCpu, reset } from "./cpu";
 
 describe("cpu", () => {
   it("initialize cpu", () => {
@@ -50,5 +50,13 @@ describe("cpu", () => {
     expect(addrRel).toBe(0);
     expect(fetched).toBe(0);
     expect(cycles).toBe(8);
+  });
+
+  it("should return true when flag is true", () => {
+    const cpu = initializeCpu();
+
+    cpu.status = 0xff;
+
+    expect(getFlag(CARRY_BIT, cpu)).toBe(1);
   });
 });
