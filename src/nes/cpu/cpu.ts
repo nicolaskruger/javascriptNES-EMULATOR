@@ -147,6 +147,10 @@ const nmi = (nes: NES): NES => {
   return interrupt(nes, 8, 0xfffa);
 };
 
+const clock = (nes: NES): NES => {
+  return { ...nes };
+};
+
 export { initializeCpu, reset, getFlag, setFlag, irq, nmi };
 
 export {
