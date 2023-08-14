@@ -86,6 +86,8 @@ describe("cpu", () => {
   it("should not interrupt when flag active", () => {
     const nes = initializeNes();
 
+    nes.cpu.status = 1 << 2;
+
     expect(irq(nes)).toStrictEqual(nes);
   });
 
@@ -116,7 +118,7 @@ describe("cpu", () => {
 
     expect(ram[0x01fd]).toBe(0x24);
 
-    expect(stkp).toBe(0xfd);
+    expect(stkp).toBe(0xfc);
 
     expect(addrAbs).toBe(0xfffe);
 
