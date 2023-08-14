@@ -24,7 +24,10 @@ const writeBus = (bus: Bus, index: number, value: number): Bus => {
 };
 
 const read2BytesFromBuss = (bus: Bus, index: number): number => {
-  return 0;
+  const lo = readBuz(bus, index);
+  const hi = readBuz(bus, index + 1);
+
+  return (hi << 8) | lo;
 };
 
 const initializeBus = (): Bus => ({
