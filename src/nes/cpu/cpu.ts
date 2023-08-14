@@ -45,7 +45,8 @@ const OVERFLOW = 1 << 6;
 const NEGATIVE = 1 << 7;
 
 const getFlag = (flag: number, cpu: Cpu): number => {
-  return 0;
+  const { status } = cpu;
+  return (status & flag) > 0 ? 1 : 0;
 };
 
 const reset = (nes: NES): NES => {
