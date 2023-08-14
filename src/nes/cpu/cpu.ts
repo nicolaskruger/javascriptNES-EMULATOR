@@ -50,8 +50,13 @@ const getFlag = (flag: number, cpu: Cpu): number => {
 };
 
 const setFlag = (flag: number, value: number, cpu: Cpu): Cpu => {
+  let status = cpu.status;
+
+  if (value) status |= flag;
+  else status &= ~flag;
   return {
     ...cpu,
+    status,
   };
 };
 

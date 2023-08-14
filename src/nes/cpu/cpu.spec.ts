@@ -73,6 +73,12 @@ describe("cpu", () => {
 
     expect(cpu.status).toBe(0x00);
 
-    expect(setFlag(CARRY_BIT, 1, cpu).status).toBe(1);
+    cpu = setFlag(CARRY_BIT, 1, cpu);
+
+    expect(cpu.status).toBe(1);
+
+    cpu = setFlag(CARRY_BIT, 0, cpu);
+
+    expect(cpu.status).toBe(0);
   });
 });
