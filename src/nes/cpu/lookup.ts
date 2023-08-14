@@ -14,9 +14,18 @@ type Instruction = {
 // addr mode
 
 const IMP = (nes: NES): ReturnInstruct => {
+  const { cpu } = nes;
+  const { a } = cpu;
+
   return {
     cycles: 0,
-    nes,
+    nes: {
+      ...nes,
+      cpu: {
+        ...cpu,
+        fetched: a,
+      },
+    },
   };
 };
 const IMM = (nes: NES): ReturnInstruct => {
@@ -689,3 +698,5 @@ const lookup: Instruction[] = [
   { addrMode: INC, operate: ABX, cycles: 7 },
   { addrMode: XXX, operate: IMP, cycles: 7 },
 ];
+
+export { IMP };
