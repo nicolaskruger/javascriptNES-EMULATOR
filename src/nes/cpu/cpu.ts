@@ -49,6 +49,12 @@ const getFlag = (flag: number, cpu: Cpu): number => {
   return (status & flag) > 0 ? 1 : 0;
 };
 
+const setFlag = (flag: number, value: number, cpu: Cpu): Cpu => {
+  return {
+    ...cpu,
+  };
+};
+
 const reset = (nes: NES): NES => {
   const { bus, cpu } = nes;
 
@@ -90,7 +96,7 @@ const reset = (nes: NES): NES => {
   };
 };
 
-export { initializeCpu, reset, getFlag };
+export { initializeCpu, reset, getFlag, setFlag };
 
 export {
   CARRY_BIT,
