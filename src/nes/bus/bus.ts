@@ -23,6 +23,10 @@ const writeBus = (bus: Bus, index: number, value: number): Bus => {
   };
 };
 
+const read2BytesFromBuss = (bus: Bus, index: number): number => {
+  return 0;
+};
+
 const initializeBus = (): Bus => ({
   ram: "_"
     .repeat(0x10000)
@@ -32,4 +36,4 @@ const initializeBus = (): Bus => ({
 
 export type { Bus };
 
-export { initializeBus, readBuz, writeBus };
+export { initializeBus, readBuz, writeBus, read2BytesFromBuss };

@@ -1,5 +1,11 @@
 import { initializeCpu } from "../cpu/cpu";
-import { Bus, initializeBus, readBuz, writeBus } from "./bus";
+import {
+  Bus,
+  initializeBus,
+  read2BytesFromBuss,
+  readBuz,
+  writeBus,
+} from "./bus";
 
 describe("bus", () => {
   it("initialize bus", () => {
@@ -43,5 +49,14 @@ describe("bus", () => {
     const newBus = writeBus(bus, 2, 1);
 
     expect(readBuz(newBus, 2)).toBe(1);
+  });
+
+  it("should read two bytes from buss", () => {
+    const bus = initializeBus();
+
+    bus.ram[0] = 0xff;
+    bus.ram[1] = 0x00;
+
+    expect(read2BytesFromBuss(bus, 0)).toBe(0x00ff);
   });
 });

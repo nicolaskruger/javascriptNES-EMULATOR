@@ -1,5 +1,5 @@
 import { mask8bit } from "../../util/calculator/mask";
-import { readBuz, writeBus } from "../bus/bus";
+import { Bus, readBuz, writeBus } from "../bus/bus";
 import { NES } from "../nes";
 
 type Cpu = {
@@ -100,6 +100,10 @@ const reset = (nes: NES): NES => {
       cycles,
     },
   };
+};
+
+const interrupt = (nes: NES, cycles: number, addrAbs: number): NES => {
+  return { ...nes };
 };
 
 const irq = (nes: NES): NES => {
