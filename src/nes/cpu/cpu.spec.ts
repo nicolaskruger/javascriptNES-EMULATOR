@@ -7,6 +7,7 @@ import {
   getFlag,
   initializeCpu,
   irq,
+  nmi,
   reset,
   setFlag,
 } from "./cpu";
@@ -125,5 +126,41 @@ describe("cpu", () => {
     expect(pc).toBe(0xff00);
 
     expect(cycles).toBe(7);
+  });
+
+  it("should perform a non masked interrupt", () => {
+    let nes = initializeNes();
+
+    const { cpu } = nes;
+
+    cpu.stkp = 0xff;
+
+    cpu.pc = 0xf0f1;
+
+    nes.bus.ram[0xfffb] = 0xff;
+
+    nes = nmi(nes);
+
+    const { bus } = nes;
+
+    const { ram } = bus;
+
+    expect(ram[0x01ff]).toBe(0xf0);
+    expect(ram[0x01fe]).toBe(0xf1);
+
+    const { status, stkp, addrAbs, pc, cycles } = nes.cpu;
+
+    //00100100
+    expect(status).toBe(0x24);
+
+    expect(ram[0x01fd]).toBe(0x24);
+
+    expect(stkp).toBe(0xfc);
+
+    expect(addrAbs).toBe(0xfffa);
+
+    expect(pc).toBe(0xff00);
+
+    expect(cycles).toBe(8);
   });
 });

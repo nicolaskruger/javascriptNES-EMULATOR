@@ -1,5 +1,5 @@
 import { mask8bit } from "../../util/calculator/mask";
-import { Bus, readBuz, writeBus } from "../bus/bus";
+import { Bus, read2BytesFromBuss, readBuz, writeBus } from "../bus/bus";
 import { NES } from "../nes";
 
 type Cpu = {
@@ -103,12 +103,6 @@ const reset = (nes: NES): NES => {
 };
 
 const interrupt = (nes: NES, cycles: number, addrAbs: number): NES => {
-  return { ...nes };
-};
-
-const irq = (nes: NES): NES => {
-  if (getFlag(DISABLE_INTERRUPT, nes.cpu)) return { ...nes };
-
   let bus = { ...nes.bus };
   let cpu = { ...nes.cpu };
 
@@ -127,12 +121,8 @@ const irq = (nes: NES): NES => {
   let status = cpu.status;
   bus = writeBus(bus, 0x0100 + stkp, status);
   stkp = mask8bit(stkp - 1);
-  const addrAbs = 0xfffe;
 
-  const lo = readBuz(bus, addrAbs);
-  const hi = readBuz(bus, addrAbs + 1);
-
-  pc = (hi << 8) | lo;
+  pc = read2BytesFromBuss(bus, addrAbs);
 
   return {
     bus,
@@ -142,12 +132,22 @@ const irq = (nes: NES): NES => {
       status,
       pc,
       addrAbs,
-      cycles: 7,
+      cycles,
     },
   };
 };
 
-export { initializeCpu, reset, getFlag, setFlag, irq };
+const irq = (nes: NES): NES => {
+  if (getFlag(DISABLE_INTERRUPT, nes.cpu)) return { ...nes };
+
+  return interrupt(nes, 7, 0xfffe);
+};
+
+const nmi = (nes: NES): NES => {
+  return interrupt(nes, 8, 0xfffa);
+};
+
+export { initializeCpu, reset, getFlag, setFlag, irq, nmi };
 
 export {
   CARRY_BIT,
