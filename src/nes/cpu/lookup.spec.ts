@@ -1,5 +1,5 @@
 import { initializeNes } from "../nes";
-import { ABS, IMM, IMP, REL, ZP0, ZPX } from "./lookup";
+import { ABS, ABX, ABY, IMM, IMP, REL, ZP0, ZPX } from "./lookup";
 
 describe("lookup", () => {
   it("IMP", () => {
@@ -99,6 +99,70 @@ describe("lookup", () => {
     oldNes.bus.ram[1] = 0xff;
 
     const { cycles, nes } = ABS(oldNes);
+
+    expect(cycles).toBe(0);
+
+    expect(nes.cpu.pc).toBe(2);
+
+    expect(nes.cpu.addrAbs).toBe(0xffff);
+  });
+
+  it("should perform one ABX when change page", () => {
+    const oldNes = initializeNes();
+
+    oldNes.cpu.x = 1;
+    oldNes.bus.ram[0] = 0xff;
+    oldNes.bus.ram[1] = 0xff;
+
+    const { cycles, nes } = ABX(oldNes);
+
+    expect(cycles).toBe(1);
+
+    expect(nes.cpu.pc).toBe(2);
+
+    expect(nes.cpu.addrAbs).toBe(0x0000);
+  });
+
+  it("should perform one ABX when not change page", () => {
+    const oldNes = initializeNes();
+
+    oldNes.cpu.x = 1;
+    oldNes.bus.ram[0] = 0xfe;
+    oldNes.bus.ram[1] = 0xff;
+
+    const { cycles, nes } = ABX(oldNes);
+
+    expect(cycles).toBe(0);
+
+    expect(nes.cpu.pc).toBe(2);
+
+    expect(nes.cpu.addrAbs).toBe(0xffff);
+  });
+
+  it("should perform one ABY when change page", () => {
+    const oldNes = initializeNes();
+
+    oldNes.cpu.y = 1;
+    oldNes.bus.ram[0] = 0xff;
+    oldNes.bus.ram[1] = 0xff;
+
+    const { cycles, nes } = ABY(oldNes);
+
+    expect(cycles).toBe(1);
+
+    expect(nes.cpu.pc).toBe(2);
+
+    expect(nes.cpu.addrAbs).toBe(0x0000);
+  });
+
+  it("should perform one ABY when not change page", () => {
+    const oldNes = initializeNes();
+
+    oldNes.cpu.y = 1;
+    oldNes.bus.ram[0] = 0xfe;
+    oldNes.bus.ram[1] = 0xff;
+
+    const { cycles, nes } = ABY(oldNes);
 
     expect(cycles).toBe(0);
 

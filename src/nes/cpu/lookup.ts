@@ -1,4 +1,4 @@
-import { mask8bit } from "../../util/calculator/mask";
+import { mask16bit, mask8bit } from "../../util/calculator/mask";
 import { deepClone } from "../../util/deep-clone/deep-clone";
 import { readBuz } from "../bus/bus";
 import { NES } from "../nes";
@@ -106,17 +106,27 @@ const ABS = (nes: NES): ReturnInstruct => {
     nes: newNes,
   };
 };
+
+const ABOffset = (nes: NES, offset: number): ReturnInstruct => {
+  const newNes = deepClone(nes);
+
+  const { bus, cpu } = newNes;
+
+  const lo = readBuz(bus, cpu.pc++);
+  const hi = readBuz(bus, cpu.pc++);
+
+  cpu.addrAbs = mask16bit(((hi << 8) | lo) + offset);
+
+  const cycles = (cpu.addrAbs & 0xff00) !== hi << 8 ? 1 : 0;
+
+  return { cycles, nes: newNes };
+};
+
 const ABX = (nes: NES): ReturnInstruct => {
-  return {
-    cycles: 0,
-    nes,
-  };
+  return ABOffset(nes, nes.cpu.x);
 };
 const ABY = (nes: NES): ReturnInstruct => {
-  return {
-    cycles: 0,
-    nes,
-  };
+  return ABOffset(nes, nes.cpu.y);
 };
 const IND = (nes: NES): ReturnInstruct => {
   return {
@@ -741,4 +751,4 @@ const lookup: Instruction[] = [
   { addrMode: XXX, operate: IMP, cycles: 7 },
 ];
 
-export { IMP, IMM, ZP0, ZPX, REL, ABS };
+export { IMP, IMM, ZP0, ZPX, REL, ABS, ABX, ABY };
