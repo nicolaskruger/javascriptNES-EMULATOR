@@ -1,4 +1,4 @@
-import { mask8bit } from "../../util/calculator/mask";
+import { mask16bit, mask8bit } from "../../util/calculator/mask";
 import { Bus, read2BytesFromBuss, readBuz, writeBus } from "../bus/bus";
 import { NES } from "../nes";
 
@@ -69,7 +69,7 @@ const reset = (nes: NES): NES => {
   const lo = readBuz(bus, add);
   const hi = readBuz(bus, add + 1);
 
-  const pc = (hi << 8) + lo;
+  const pc = (hi << 8) | lo;
 
   const a = 0;
   const x = 0;
@@ -110,16 +110,16 @@ const interrupt = (nes: NES, cycles: number, addrAbs: number): NES => {
 
   let pc = cpu.pc;
 
-  bus = writeBus(bus, 0x0100 + stkp, mask8bit(pc >> 8));
+  bus = writeBus(bus, mask16bit(0x0100 + stkp), mask8bit(pc >> 8));
   stkp = mask8bit(stkp - 1);
-  bus = writeBus(bus, 0x0100 + stkp, mask8bit(pc));
+  bus = writeBus(bus, mask16bit(0x0100 + stkp), mask8bit(pc));
   stkp = mask8bit(stkp - 1);
   cpu = setFlag(BREAK, 0, cpu);
   cpu = setFlag(UNUSED, 1, cpu);
   cpu = setFlag(DISABLE_INTERRUPT, 1, cpu);
 
   let status = cpu.status;
-  bus = writeBus(bus, 0x0100 + stkp, status);
+  bus = writeBus(bus, mask16bit(0x0100 + stkp), status);
   stkp = mask8bit(stkp - 1);
 
   pc = read2BytesFromBuss(bus, addrAbs);

@@ -31,6 +31,8 @@ const IMM = (nes: NES): ReturnInstruct => {
 
   newNes.cpu.addrAbs = newNes.cpu.pc++;
 
+  newNes.cpu.pc &= 0xffff;
+
   return {
     cycles: 0,
     nes: newNes,
@@ -42,6 +44,8 @@ const ZP0 = (nes: NES): ReturnInstruct => {
   const { cpu, bus } = newNes;
 
   cpu.addrAbs = mask8bit(readBuz(bus, cpu.pc++));
+
+  cpu.pc &= 0xffff;
 
   return {
     cycles: 0,
@@ -55,6 +59,8 @@ const ZP = (nes: NES, offset: number): NES => {
   const { cpu, bus } = newNes;
 
   cpu.addrAbs = mask8bit(readBuz(bus, cpu.pc++) + offset);
+
+  cpu.pc &= 0xffff;
 
   return {
     ...newNes,
@@ -81,6 +87,7 @@ const REL = (nes: NES): ReturnInstruct => {
   let addRel = readBuz(bus, cpu.pc);
 
   cpu.pc++;
+  cpu.pc &= 0xffff;
 
   if (addRel & 0x80) addRel |= 0xff00;
 
@@ -97,8 +104,9 @@ const ABS = (nes: NES): ReturnInstruct => {
   const { bus, cpu } = newNes;
 
   const lo = readBuz(bus, cpu.pc++);
+  cpu.pc &= 0xffff;
   const hi = readBuz(bus, cpu.pc++);
-
+  cpu.pc &= 0xffff;
   cpu.addrAbs = (hi << 8) | lo;
 
   return {
@@ -113,7 +121,9 @@ const ABOffset = (nes: NES, offset: number): ReturnInstruct => {
   const { bus, cpu } = newNes;
 
   const lo = readBuz(bus, cpu.pc++);
+  cpu.pc &= 0xffff;
   const hi = readBuz(bus, cpu.pc++);
+  cpu.pc &= 0xffff;
 
   cpu.addrAbs = mask16bit(((hi << 8) | lo) + offset);
 
@@ -129,9 +139,26 @@ const ABY = (nes: NES): ReturnInstruct => {
   return ABOffset(nes, nes.cpu.y);
 };
 const IND = (nes: NES): ReturnInstruct => {
+  const newNes = deepClone(nes);
+
+  const { bus, cpu } = newNes;
+
+  const lo = readBuz(bus, cpu.pc++);
+  cpu.pc &= 0xffff;
+
+  const hi = readBuz(bus, cpu.pc++);
+  cpu.pc &= 0xffff;
+
+  const ptr = (hi << 8) | lo;
+
+  const hiAbs =
+    lo === 0xff ? readBuz(bus, ptr & 0xff00) : readBuz(bus, mask16bit(ptr + 1));
+
+  cpu.addrAbs = (hiAbs << 8) | readBuz(bus, ptr);
+
   return {
     cycles: 0,
-    nes,
+    nes: newNes,
   };
 };
 const IZX = (nes: NES): ReturnInstruct => {
@@ -751,4 +778,4 @@ const lookup: Instruction[] = [
   { addrMode: XXX, operate: IMP, cycles: 7 },
 ];
 
-export { IMP, IMM, ZP0, ZPX, REL, ABS, ABX, ABY };
+export { IMP, IMM, ZP0, ZPX, REL, ABS, ABX, ABY, IND };

@@ -1,5 +1,5 @@
 import { initializeNes } from "../nes";
-import { ABS, ABX, ABY, IMM, IMP, REL, ZP0, ZPX } from "./lookup";
+import { ABS, ABX, ABY, IMM, IMP, IND, REL, ZP0, ZPX } from "./lookup";
 
 describe("lookup", () => {
   it("IMP", () => {
@@ -14,7 +14,7 @@ describe("lookup", () => {
     expect(newNes.cpu.fetched).toBe(0xff);
   });
 
-  it("IMP", () => {
+  it("IMM", () => {
     const nes = initializeNes();
 
     nes.cpu.pc = 0x01;
@@ -169,5 +169,35 @@ describe("lookup", () => {
     expect(nes.cpu.pc).toBe(2);
 
     expect(nes.cpu.addrAbs).toBe(0xffff);
+  });
+
+  it("IND should perform a hardware bug when lo is 0xff", () => {
+    const oldNes = initializeNes();
+
+    oldNes.bus.ram[0] = 0xff;
+
+    oldNes.bus.ram[0xff] = 0xdd;
+
+    const { nes, cycles } = IND(oldNes);
+
+    expect(cycles).toBe(0);
+
+    expect(nes.cpu.addrAbs).toBe(0xffdd);
+  });
+
+  it("IND should perform standard operation when lo is different from 0xff", () => {
+    const oldNes = initializeNes();
+
+    oldNes.bus.ram[0] = 0xfd;
+
+    oldNes.bus.ram[0xfd] = 0xdd;
+
+    oldNes.bus.ram[0xfe] = 0xee;
+
+    const { nes, cycles } = IND(oldNes);
+
+    expect(cycles).toBe(0);
+
+    expect(nes.cpu.addrAbs).toBe(0xeedd);
   });
 });
