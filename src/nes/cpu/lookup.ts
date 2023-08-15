@@ -74,9 +74,21 @@ const ZPY = (nes: NES): ReturnInstruct => {
   };
 };
 const REL = (nes: NES): ReturnInstruct => {
+  const newNes = deepClone(nes);
+
+  const { bus, cpu } = newNes;
+
+  let addRel = readBuz(bus, cpu.pc);
+
+  cpu.pc++;
+
+  if (addRel & 0x80) addRel |= 0xff00;
+
+  cpu.addrRel = addRel;
+
   return {
+    nes: newNes,
     cycles: 0,
-    nes,
   };
 };
 const ABS = (nes: NES): ReturnInstruct => {
@@ -720,4 +732,4 @@ const lookup: Instruction[] = [
   { addrMode: XXX, operate: IMP, cycles: 7 },
 ];
 
-export { IMP, IMM, ZP0, ZPX };
+export { IMP, IMM, ZP0, ZPX, REL };
