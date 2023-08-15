@@ -162,15 +162,53 @@ const IND = (nes: NES): ReturnInstruct => {
   };
 };
 const IZX = (nes: NES): ReturnInstruct => {
+  const newNes = deepClone(nes);
+
+  const { bus, cpu } = newNes;
+
+  const value = readBuz(bus, cpu.pc++);
+
+  cpu.pc &= 0xffff;
+
+  const { x } = cpu;
+
+  const readOffset = (offset: number) =>
+    readBuz(bus, mask16bit(value + x + offset) & 0xff);
+
+  const lo = readOffset(0);
+  const hi = readOffset(1);
+
+  cpu.addrAbs = (hi << 8) | lo;
+
   return {
     cycles: 0,
-    nes,
+    nes: newNes,
   };
 };
 const IZY = (nes: NES): ReturnInstruct => {
+  const { bus, cpu } = deepClone(nes);
+
+  const value = readBuz(bus, cpu.pc++);
+
+  cpu.pc &= 0xffff;
+
+  const lo = readBuz(bus, value & 0xff);
+  const hi = readBuz(bus, (value + 1) & 0xff);
+
+  cpu.addrAbs = (hi << 8) + lo;
+
+  cpu.addrAbs += cpu.y;
+
+  cpu.addrAbs &= 0xffff;
+
+  const cycles = (cpu.addrAbs & 0xff00) !== hi << 8 ? 1 : 0;
+
   return {
-    cycles: 0,
-    nes,
+    cycles,
+    nes: {
+      bus,
+      cpu,
+    },
   };
 };
 
@@ -778,4 +816,4 @@ const lookup: Instruction[] = [
   { addrMode: XXX, operate: IMP, cycles: 7 },
 ];
 
-export { IMP, IMM, ZP0, ZPX, REL, ABS, ABX, ABY, IND };
+export { IMP, IMM, ZP0, ZPX, REL, ABS, ABX, ABY, IND, IZX, IZY };

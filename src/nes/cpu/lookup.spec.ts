@@ -1,5 +1,17 @@
 import { initializeNes } from "../nes";
-import { ABS, ABX, ABY, IMM, IMP, IND, REL, ZP0, ZPX } from "./lookup";
+import {
+  ABS,
+  ABX,
+  ABY,
+  IMM,
+  IMP,
+  IND,
+  IZX,
+  IZY,
+  REL,
+  ZP0,
+  ZPX,
+} from "./lookup";
 
 describe("lookup", () => {
   it("IMP", () => {
@@ -199,5 +211,57 @@ describe("lookup", () => {
     expect(cycles).toBe(0);
 
     expect(nes.cpu.addrAbs).toBe(0xeedd);
+  });
+
+  it("IZX", () => {
+    const oldNes = initializeNes();
+
+    const { bus, cpu } = oldNes;
+
+    bus.ram[0] = 0xff;
+
+    bus.ram[0xfe] = 0xaa;
+
+    bus.ram[0xff] = 0xbb;
+
+    cpu.x = 0xff;
+
+    const { cycles, nes } = IZX(oldNes);
+
+    expect(cycles).toBe(0);
+
+    expect(nes.cpu.addrAbs).toBe(0xbbaa);
+  });
+
+  it("IZY change of clock", () => {
+    const oldNes = initializeNes();
+
+    oldNes.bus.ram[0] = 1;
+    oldNes.bus.ram[1] = 0xff;
+    oldNes.bus.ram[2] = 0xee;
+
+    oldNes.cpu.y = 0x1;
+
+    const { cycles, nes } = IZY(oldNes);
+
+    expect(cycles).toBe(1);
+
+    expect(nes.cpu.addrAbs).toBe(0xef00);
+  });
+
+  it("IZY not change of clock", () => {
+    const oldNes = initializeNes();
+
+    oldNes.bus.ram[0] = 1;
+    oldNes.bus.ram[1] = 0xfe;
+    oldNes.bus.ram[2] = 0xee;
+
+    oldNes.cpu.y = 0x1;
+
+    const { cycles, nes } = IZY(oldNes);
+
+    expect(cycles).toBe(0);
+
+    expect(nes.cpu.addrAbs).toBe(0xeeff);
   });
 });
