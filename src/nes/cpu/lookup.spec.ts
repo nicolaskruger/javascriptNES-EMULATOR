@@ -1,5 +1,5 @@
 import { initializeNes } from "../nes";
-import { IMM, IMP, REL, ZP0, ZPX } from "./lookup";
+import { ABS, IMM, IMP, REL, ZP0, ZPX } from "./lookup";
 
 describe("lookup", () => {
   it("IMP", () => {
@@ -90,5 +90,20 @@ describe("lookup", () => {
     expect(nes.cpu.pc).toBe(1);
 
     expect(nes.cpu.addrRel).toBe(0x000f);
+  });
+
+  it("ABS", () => {
+    const oldNes = initializeNes();
+
+    oldNes.bus.ram[0] = 0xff;
+    oldNes.bus.ram[1] = 0xff;
+
+    const { cycles, nes } = ABS(oldNes);
+
+    expect(cycles).toBe(0);
+
+    expect(nes.cpu.pc).toBe(2);
+
+    expect(nes.cpu.addrAbs).toBe(0xffff);
   });
 });
