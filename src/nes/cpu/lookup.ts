@@ -1,4 +1,5 @@
 import { mask8bit } from "../../util/calculator/mask";
+import { deepClone } from "../../util/deep-clone/deep-clone";
 import { readBuz } from "../bus/bus";
 import { NES } from "../nes";
 
@@ -16,39 +17,47 @@ type Instruction = {
 // addr mode
 
 const IMP = (nes: NES): ReturnInstruct => {
-  nes.cpu.fetched = nes.cpu.a;
+  const newNes = deepClone(nes);
+
+  newNes.cpu.fetched = newNes.cpu.a;
 
   return {
-    nes,
+    nes: newNes,
     cycles: 0,
   };
 };
 const IMM = (nes: NES): ReturnInstruct => {
-  nes.cpu.addrAbs = nes.cpu.pc++;
+  const newNes = deepClone(nes);
+
+  newNes.cpu.addrAbs = newNes.cpu.pc++;
 
   return {
     cycles: 0,
-    nes,
+    nes: newNes,
   };
 };
 const ZP0 = (nes: NES): ReturnInstruct => {
-  const { cpu, bus } = nes;
+  const newNes = deepClone(nes);
+
+  const { cpu, bus } = newNes;
 
   cpu.addrAbs = mask8bit(readBuz(bus, cpu.pc++));
 
   return {
     cycles: 0,
-    nes,
+    nes: newNes,
   };
 };
 
 const ZP = (nes: NES, offset: number): NES => {
-  const { cpu, bus } = nes;
+  const newNes = deepClone(nes);
+
+  const { cpu, bus } = newNes;
 
   cpu.addrAbs = mask8bit(readBuz(bus, cpu.pc++) + offset);
 
   return {
-    ...nes,
+    ...newNes,
   };
 };
 
