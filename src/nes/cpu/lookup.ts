@@ -1,7 +1,17 @@
+import { boolToBit } from "../../util/bool-to-bit/bool-to-bit";
 import { mask16bit, mask8bit } from "../../util/calculator/mask";
 import { deepClone } from "../../util/deep-clone/deep-clone";
 import { readBuz } from "../bus/bus";
 import { NES } from "../nes";
+import {
+  CARRY_BIT,
+  NEGATIVE,
+  OVERFLOW,
+  ZERO,
+  fetch,
+  getFlag,
+  setFlag,
+} from "./cpu";
 
 type ReturnInstruct = {
   cycles: number;
@@ -215,9 +225,29 @@ const IZY = (nes: NES): ReturnInstruct => {
 // opcode
 
 const ADC = (nes: NES): ReturnInstruct => {
+  let newNes = fetch(nes);
+
+  let { cpu } = newNes;
+
+  const temp = 0xffff & (cpu.a + cpu.fetched + getFlag(CARRY_BIT, cpu));
+
+  cpu = setFlag(CARRY_BIT, boolToBit(temp > 0xff), cpu);
+  cpu = setFlag(ZERO, boolToBit((temp & 0xff) === 0), cpu);
+  cpu = setFlag(
+    OVERFLOW,
+    boolToBit(Boolean(~((cpu.a ^ cpu.fetched) & (cpu.a ^ temp)) & 0x80)),
+    cpu
+  );
+
+  cpu = setFlag(NEGATIVE, boolToBit(Boolean(temp & 0x80)), cpu);
+
+  cpu.a = temp & 0xff;
+
+  newNes.cpu = cpu;
+
   return {
-    nes,
-    cycles: 0,
+    nes: newNes,
+    cycles: 1,
   };
 };
 const AND = (nes: NES): ReturnInstruct => {
@@ -816,4 +846,4 @@ const lookup: Instruction[] = [
   { operate: XXX, addrMode: IMP, cycles: 7 },
 ];
 
-export { IMP, IMM, ZP0, ZPX, REL, ABS, ABX, ABY, IND, IZX, IZY, lookup };
+export { IMP, IMM, ZP0, ZPX, REL, ABS, ABX, ABY, IND, IZX, IZY, lookup, ADC };

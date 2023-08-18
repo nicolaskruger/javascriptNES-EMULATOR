@@ -1,8 +1,10 @@
+import { stringToBinary } from "../../util/string-to-binary/string-to-binary";
 import { initializeNes } from "../nes";
 import {
   ABS,
   ABX,
   ABY,
+  ADC,
   IMM,
   IMP,
   IND,
@@ -263,5 +265,34 @@ describe("lookup", () => {
     expect(cycles).toBe(0);
 
     expect(nes.cpu.addrAbs).toBe(0xeeff);
+  });
+  it("ADC", () => {
+    const oldNes = initializeNes();
+
+    const { cpu } = oldNes;
+
+    cpu.opcode = 2;
+
+    cpu.a = stringToBinary("0111-1111");
+
+    cpu.fetched = stringToBinary("0000-0001");
+
+    cpu.status = 0xff;
+
+    // temp = 1000-0001
+
+    const { cycles, nes } = ADC(oldNes);
+
+    expect(cycles).toBe(1);
+
+    const { cpu: newCpu } = nes;
+
+    // C = 0
+    // Z = 0
+    // V = not 0111-1110 and 1111-1110 = not 0111-1110 = 1000-0001 = 1
+    // N = 1
+    expect(newCpu.status).toBe(stringToBinary("1111-1100"));
+
+    expect(newCpu.a).toBe(stringToBinary("1000-0001"));
   });
 });
