@@ -1,6 +1,8 @@
 import { mask16bit, mask8bit } from "../../util/calculator/mask";
+import { deepClone } from "../../util/deep-clone/deep-clone";
 import { Bus, read2BytesFromBuss, readBuz, writeBus } from "../bus/bus";
 import { NES } from "../nes";
+import { IMP, lookup } from "./lookup";
 
 type Cpu = {
   // registers
@@ -151,7 +153,19 @@ const clock = (nes: NES): NES => {
   return { ...nes };
 };
 
-export { initializeCpu, reset, getFlag, setFlag, irq, nmi };
+const fetch = (nes: NES): NES => {
+  const newNes = deepClone(nes);
+
+  const { bus, cpu } = newNes;
+
+  const { addrMode } = lookup[cpu.opcode];
+
+  if (!(lookup[newNes.cpu.opcode].addrMode === IMP))
+    cpu.fetched = readBuz(bus, cpu.addrAbs);
+  return { ...newNes };
+};
+
+export { initializeCpu, reset, getFlag, setFlag, irq, nmi, fetch };
 
 export {
   CARRY_BIT,

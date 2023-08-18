@@ -4,6 +4,7 @@ import {
   CARRY_BIT,
   Cpu,
   UNUSED,
+  fetch,
   getFlag,
   initializeCpu,
   irq,
@@ -162,5 +163,29 @@ describe("cpu", () => {
     expect(pc).toBe(0xff00);
 
     expect(cycles).toBe(8);
+  });
+
+  it("should read data when fetch has addrmode !== IMP", () => {
+    const nes = initializeNes();
+
+    nes.cpu.opcode = 1;
+
+    nes.bus.ram[0] = 0xff;
+
+    const newNes = fetch(nes);
+
+    expect(newNes.cpu.fetched).toBe(0xff);
+  });
+
+  it("should not change fetch when addrmode  === IMP", () => {
+    const nes = initializeNes();
+
+    nes.cpu.opcode = 2;
+
+    nes.cpu.fetched = 0xfd;
+
+    const newNes = fetch(nes);
+
+    expect(newNes.cpu.fetched).toBe(0xfd);
   });
 });
