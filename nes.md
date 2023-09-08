@@ -321,14 +321,14 @@ possui memoria VRAM, pode endereçar até 64kB, apesar de possuir memória fisic
 VRAM armazena: Tabela de Padrões, Tabela de Nomes e Paletas de Cores.
 
 - 0x0000 - 0x1fff **Tabelas de Padrões**: Padrões que definem as formas dos tiles que dão origem as backgrounds e os sprigtes.
-- 0x2000 - 0x2fff **Tableas de Nomes**: São matrizes de números de tiles, que apontam para os tiles armazenados na região armazenados na região de momoria das tableas padrões.
+- 0x2000 - 0x2fff **Tabelas de Nomes**: São matrizes de números de tiles, que apontam para os tiles armazenados na região armazenados na região de memoria das tableas padrões.
 - 0x3000 - 0x3eff espelhamento da **Tabela de nomes**
 - 0x3f00 - 0x3fff **paleta de cores**: são as cores que vão ser utilizada no backgourund e nos sprites da tela atual.
 - 0x4000 - fim: espelahmento
 
 **SPR-RAM**: Memória separada utilizada para armazenar os atributos dos sprites
 
-**DMA** direct memory acces: é Possivel transferir atpe 256 bytes da SPR-RAM da CPU de uma inica vez. Para isso é preciso setar o registrador de I/O da CPU 0x4014 e serrão tanferidos 256bytes da região 0xXX00 - 0xXXff para a PPU.
+**DMA** direct memory acces: é Possivel transferir até 256 bytes da SPR-RAM da CPU de uma unica vez. Para isso é preciso setar o registrador de I/O da CPU 0x4014 e serrão tanferidos 256bytes da região 0xXX00 - 0xXXff para a PPU.
 
 por exempro se o registrador 0x4014 for setado 0x43 as memoria a serem transferidas são 0x4300 - 0x43ff.
 
@@ -340,8 +340,8 @@ A CPU controla a PPU
 
 - 0x2000 - 0x2001: registradores de controle, cada bit configura uma configuração especifica.
 - 0x2002 registrador de status: sincroniza CPU e PPU.
-- 0x2003 - 0x2004: registrador utilizados para escrever sprites 0x2003 é o endereço da SPR-RAM e 0x2004 valor a ser escrito.
-- 0x2005: é utilizado para alterar posição do scroll que dix qual pixel da Tabela de nomes está no topo esquerdo da tela. É feita duas escritas primeiro a posição X depois a Y.
+- 0x2003 - 0x2004: registrador utilizados para escrever sprites. 0x2003 é o endereço da SPR-RAM e 0x2004 valor a ser escrito.
+- 0x2005: é utilizado para alterar posição do scroll que diz qual pixel da Tabela de nomes está no topo esquerdo da tela. É feita duas escritas primeiro a posição X depois a Y.
 - 0x2006 - 0x2007: Registrador por onde ocorre a transferência entre CPU e PPU.
 
 #### **0x2000** escrita:
@@ -392,3 +392,59 @@ Escreve ou le dados da VRAM. Depois de escrito o registrador 0x2000 é increment
 #### **0x4014** escrita
 
 byte mais significativo do DMA do SPR-RAM
+
+### Paleta de Cores
+
+64 cores. Para cada quadro é escolhido 16 corea para backgound e 16 cores para sprites.
+
+|                            |              |              |              |                     |
+| -------------------------- | ------------ | ------------ | ------------ | ------------------- |
+| 0x3f00 cor de fundo        | 0x3f01 cor 1 | 0x3f02 cor 2 | 0x3f03 cor 3 | paleta background 0 |
+| 0x3f04 espelhamento 0x3f00 | 0x3f05 cor 1 | 0x3f06 cor 2 | 0x3f07 cor 3 | paleta background 1 |
+| 0x3f08 espelhamento 0x3f00 | 0x3f09 cor 1 | 0x3f0a cor 2 | 0x3f0b cor 3 | paleta background 2 |
+| 0x3f0c espelhamento 0x3f00 | 0x3f0d cor 1 | 0x3f0e cor 2 | 0x3f0f cor 3 | paleta background 3 |
+| 0x3f10 espelhamento 0x3f00 | 0x3f11 cor 1 | 0x3f12 cor 2 | 0x3f13 cor 3 | paleta sprite 0     |
+| 0x3f14 espelhamento 0x3f00 | 0x3f15 cor 1 | 0x3f16 cor 2 | 0x3f17 cor 3 | paleta sprite 1     |
+| 0x3f18 espelhamento 0x3f00 | 0x3f19 cor 1 | 0x3f1a cor 2 | 0x3f1b cor 3 | paleta sprite 2     |
+| 0x3f1c espelhamento 0x3f00 | 0x3f1d cor 1 | 0x3f1e cor 2 | 0x3f1f cor 3 | paleta sprite 3     |
+
+### tablea padrão
+
+cada tile é formado por 16 bytes, esses bytes são divididos em duas tabelas de 8bytes, a primeira é a tabela que representa o bit 0 e a sagunda o bit 1 assim podendo gera até quato combinações (00, 01, 10, 11). Cda combinação é uma cor na tabela de cores.
+
+exemplo
+
+tabela 0
+
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 0 0 0 0 0 0 0
+0 1 1 1 1 1 1 0
+0 0 1 1 1 1 0 0
+
+tabela 1
+
+0 0 1 1 1 1 0 0
+0 1 1 1 1 1 1 0
+0 1 1 1 1 1 1 0
+1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1
+1 1 1 1 1 1 1 1
+0 1 0 0 0 0 1 0
+0 0 0 0 0 0 0 0
+
+tabela resultant
+
+0 0 2 2 2 2 0 0
+0 2 2 2 2 2 2 0
+0 2 2 2 2 2 2 0
+2 2 2 2 2 2 2 2
+2 2 2 2 2 2 2 2
+2 2 2 2 2 2 2 2
+0 3 1 1 1 1 3 0
+0 0 1 1 1 1 0 0
+
+### tabela de nomes.
