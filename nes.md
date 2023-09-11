@@ -466,5 +466,3 @@ cada byte é dividido em 2bit, esse valor é o valor de uma cor especifica em ca
 efeito utilizado em jogos 2D para efetuar a rolagem de tela tanto de forma horizontal como de forma vertical. Para isso é utilizado duas tabelas de nomes.
 
 registrador **0x2005** indica em qual pixel está poscionada a parte esquera superior da tela. Para isso são efetuadas duas escritas. A escrita é sempre feita no V-blank.
-
-teste
