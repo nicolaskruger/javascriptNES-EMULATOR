@@ -38,7 +38,7 @@ foi criado um acabeçalho de **16Bytes** para identificar caracteristicas do jog
 | 0     | tipod de espelahamento 0 horizontal 1 vertical                 |
 | 1     | indica a preznçã de memória ram do cartucho                    |
 | 2     | idica a presençã de 512byte utilizado par alguns memory mapper |
-| 3     | indivca q o jogo eh dividido em 4 telas                        |
+| 3     | indica q o jogo eh dividido em 4 telas                         |
 | 4 - 7 | 4 bits menos significativos do memory Mapper                   |
 
 **byte de controle 2**
@@ -48,7 +48,7 @@ foi criado um acabeçalho de **16Bytes** para identificar caracteristicas do jog
 | 0 - 3 | não utilizados                             |
 | 4 - 7 | bits mais significativosa do memory mapper |
 
-deposi do cabeçalho vem o 512byte trainer caso presente. Proximo vem PRG-ROM depois CHR-ROM
+depoi do cabeçalho vem o 512byte trainer caso presente. Proximo vem PRG-ROM depois CHR-ROM
 
 512 byte triner -> PRG-ROM -> CHR-ROM
 
@@ -63,12 +63,12 @@ ele carrega da memoria alguns bancos de dados do cartucho, conforme o software s
 ## CPU
 
 - console de 8bits
-- variação do processador **6502** da MOS Technology, chamado de **2A03** suporta som (pAPU) por exemplo o endereço 0x1234 é amazenado 0x34 no (x) e 0x12 no (x + 1)
+- variação do processador **6502** da MOS Technology, chamado de **2A03** suporta som (pAPU)
 
 ### 2A03
 
 - pode manipular som
-- little endian são armazenados no endereço menos significativo primeiro
+- little endian são armazenados no endereço menos significativo primeiro por exemplo o endereço 0x1234 é amazenado 0x34 no (x) e 0x12 no (x + 1)
 
 ## mapa de memória
 
@@ -82,7 +82,7 @@ comunicação feita por barramentos de 8 bits
 
 A CPU pode endereçar até 64 kB $0000 $ffff
 
-areas epelhadas, o memo conteúdo é escrito em mais de uma area
+areas epelhadas, o mesmo conteúdo é escrito em mais de uma area
 
 | endereço        | tipo          | conteúdo                                                       |
 | --------------- | ------------- | -------------------------------------------------------------- |
@@ -332,7 +332,7 @@ VRAM armazena: Tabela de Padrões, Tabela de Nomes e Paletas de Cores.
 
 por exempro se o registrador 0x4014 for setado 0x43 as memoria a serem transferidas são 0x4300 - 0x43ff.
 
-### Registradores:
+### Registradores
 
 Os registradores utilizados pela PPU são alguns dos registradores I/O da memória da CPU. são eles 0x2000 - 0x2007 e 0x4014 para DMA.
 
@@ -344,7 +344,7 @@ A CPU controla a PPU
 - 0x2005: é utilizado para alterar posição do scroll que diz qual pixel da Tabela de nomes está no topo esquerdo da tela. É feita duas escritas primeiro a posição X depois a Y.
 - 0x2006 - 0x2007: Registrador por onde ocorre a transferência entre CPU e PPU.
 
-#### **0x2000** escrita:
+#### **0x2000** escrita
 
 - bit 0-1: seleciona um entre 4 tabelas de nome 0x2000(0), 0x2400(1), 0x2800(2), 0x2C00(3)
 - bit 2: especifica a quantidade que ira encrementar no endereço 0 -> 1, 1 -> 32
@@ -353,7 +353,7 @@ A CPU controla a PPU
 - bit 6: não utilizado
 - bit 7: indica quando NMI deve ocorrer após o V-Blank
 
-#### **0x2001** escrita:
+#### **0x2001** escrita
 
 - bit 0: 0 -> colorido, 1 -> monocromatico
 - bit 1: 8 pixels esquerda background 0 -> esconder, 1 -> mostrar
@@ -362,7 +362,7 @@ A CPU controla a PPU
 - bit 4: 0 -> esconde sprite, 1 -> mostra sprite
 - bit 5 - 7: indica a cor caso esteja no modo nonocroatico, ou a intencidade das cores no modo colorido
 
-#### **0x2002** leitura:
+#### **0x2002** leitura
 
 - bit 4: 1 -> escrita na VRAM deve ser ignorada
 - bit 5: 1 -> tem mais 8 sprites por scanline
@@ -414,7 +414,7 @@ cada tile é formado por 16 bytes, esses bytes são divididos em duas tabelas de
 
 exemplo
 
-tabela 0
+tabela 0  
 
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
@@ -447,4 +447,22 @@ tabela resultant
 0 3 1 1 1 1 3 0
 0 0 1 1 1 1 0 0
 
-### tabela de nomes.
+### tabela de nomes
+
+30x32 (30 colunas com 32 linhas) de 8x8pixels(tiles). Nos dando uma resolução de 30x32tiles ou 240x252pixels.
+
+**tile** tem um byte.
+
+A tabela de nomes tem um total 960 bytes.
+
+### tabela de atributos
+
+responsavel pelas cores dos tyles, ela posui 64bytes para endereçamento, utilizando um byte por endereçamento. ela endereça 4x4 tiles que da 2x2blocos que da 32x32pixels.
+
+cada byte é dividido em 2bit, esse valor é o valor de uma cor especifica em cada bloco.
+
+### scrolling
+
+efeito utilizado em jogos 2D para efetuar a rolagem de tela tanto de forma horizontal como de forma vertical. Para isso é utilizado duas tabelas de nomes.
+
+registrador **0x2005** indica em qual pixel está poscionada a parte esquera superior da tela. Para isso são efetuadas duas escritas. A escrita é sempre feita no V-blank.
