@@ -410,7 +410,7 @@ byte mais significativo do DMA do SPR-RAM
 
 ### tablea padrão
 
-cada tile é formado por 16 bytes, esses bytes são divididos em duas tabelas de 8bytes, a primeira é a tabela que representa o bit 0 e a sagunda o bit 1 assim podendo gera até quato combinações (00, 01, 10, 11). Cda combinação é uma cor na tabela de cores.
+cada tile é formado por 16 bytes, esses bytes são divididos em duas tabelas de 8bytes, a primeira é a tabela que representa o bit 0 e a segunda o bit 1 assim podendo gera até quato combinações (00, 01, 10, 11). Cda combinação é uma cor na tabela de cores.
 
 exemplo
 
@@ -466,3 +466,31 @@ cada byte é dividido em 2bit, esse valor é o valor de uma cor especifica em ca
 efeito utilizado em jogos 2D para efetuar a rolagem de tela tanto de forma horizontal como de forma vertical. Para isso é utilizado duas tabelas de nomes.
 
 registrador **0x2005** indica em qual pixel está poscionada a parte esquera superior da tela. Para isso são efetuadas duas escritas. A escrita é sempre feita no V-blank.
+
+### sprites
+
+tiles de 8x8 pixels que pode ser renderizado em qualquer posição da tela.
+
+os dados de cada sprite são formados por 4bytes
+
+**byte 0 posdição Y**: começa no topo da tela é o eixo y.
+
+**byte 1 numero do tile**: ponteiro para o número do tyle na **tabela padrão**.
+
+**byte 2 numero de atributo**: info sobre cor e exebição
+
+- bit 0-1: Paleta de cor utilizada.
+- bit 2-4: não utilizado.
+- bit 5: 0 frente bg, 1 atraz bg.
+- bit 6: sprite gira horizontamente 90 graus.
+- bit 7: sprite gira verticalmente 90 graus.
+
+**byte 3 posição X**: começa no lado esquerdo da tela é o eixo x.
+
+**SPR-RAM**: armazena até 64 sprites.Durante a scanline, a PPU verifiaca se tem alguma sprite que deva ser renderizada, para isso ela utiliza o eixo Y da sprite.
+
+PPU so é capaz de renderizar 8 sprites por scanline e a ordem é definida polo armazenamento da sprite na SPR-RAM
+
+o render da PPU é executado a cada scanline para dar ao personagem impreção de movimento.
+
+**colisão tecnica Sprite 0 hit**: varifica se algum pixels da sprite está sobreposto a um pixel não tranparente do bg. Ai ocorre uma colisão e o sprite hit é definido como 1.
