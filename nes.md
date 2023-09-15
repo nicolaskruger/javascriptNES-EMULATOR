@@ -308,33 +308,40 @@ reset => NMI => IRQ
 
 PPU (picture processing unit) chip (2C02). Comunicação com a CPU se da por alguns registradores de I/O na memória da CPU. PPU endereço de 16bits mas registrador de entrada tem 8bits, é feita duas escritas para definir os endereços.
 
-para renderixar pixels, utiliza-se do metodo **scanline** que consciste em renderizar uma linha de cada vez. Tela do NES 256x240, mas no scanline execute 262.
+para renderizar pixels, utiliza-se do método **scanline** que consiste em renderizar uma linha de cada vez. Tela do NES 256x240, mas no scanline execute 262.
 
 - 0 - 239: são renderizados os pixels
 - 240: não faz nada
-- 241 - 260: ocorre o V-Blank que é o momento q a PPU não está em uso, então é possivel acessar e transferir dados da memória para a PPU. O inicio da V-Blank se da após a interrupção NMI.
+- 241 - 260: ocorre o V-Blank que é o momento q a PPU não está em uso, então é possível acessar e transferir dados da memória para a PPU. O inicio da V-Blank se da após a interrupção NMI.
 
 ### Mapa de memória
 
-possui memoria VRAM, pode endereçar até 64kB, apesar de possuir memória fisica de somente 16kB
+possui memoria **VRAM**, pode endereçar até 64kB, apesar de possuir memória física de somente 16kB
+
+#### VRAM
+
+- **0x0000 - 0x2000 pattern table**: pattern table 0 (0x0000 - 0x1000), patter table 1 (0x1000 - 0x2000)
+- **0x2000 - 0x3f00S name tables**
+- **0x3f00 - 0x4000 palettes table**
+- **0x4000 - 0x100000 mirror**
 
 VRAM armazena: Tabela de Padrões, Tabela de Nomes e Paletas de Cores.
 
-- 0x0000 - 0x1fff **Tabelas de Padrões**: Padrões que definem as formas dos tiles que dão origem as backgrounds e os sprigtes.
-- 0x2000 - 0x2fff **Tabelas de Nomes**: São matrizes de números de tiles, que apontam para os tiles armazenados na região armazenados na região de memoria das tableas padrões.
+- 0x0000 - 0x1fff **Tabelas de Padrões**: Padrões que definem as formas dos tiles que dão origem as backgrounds e os sprites.
+- 0x2000 - 0x2fff **Tabelas de Nomes**: São matrizes de números de tiles, que apontam para os tiles armazenados na região armazenados na região de memoria das tabelas padrões.
 - 0x3000 - 0x3eff espelhamento da **Tabela de nomes**
-- 0x3f00 - 0x3fff **paleta de cores**: são as cores que vão ser utilizada no backgourund e nos sprites da tela atual.
-- 0x4000 - fim: espelahmento
+- 0x3f00 - 0x3fff **paleta de cores**: são as cores que vão ser utilizada no backgound e nos sprites da tela atual.
+- 0x4000 - fim: espelhamento
 
-**SPR-RAM**: Memória separada utilizada para armazenar os atributos dos sprites
+**SPR-RAM**: Memória separada utilizada para armazenar os atributos dos sprites é memoria da PPU.
 
-**DMA** direct memory acces: é Possivel transferir até 256 bytes da SPR-RAM da CPU de uma unica vez. Para isso é preciso setar o registrador de I/O da CPU 0x4014 e serrão tanferidos 256bytes da região 0xXX00 - 0xXXff para a PPU.
+**DMA** direct memory access: é Possível transferir até 256 bytes da SPR-RAM da CPU de uma única vez. Para isso é preciso setar o registrador de I/O da CPU 0x4014 e serrão transferidos 256bytes da região 0xXX00 - 0xXXff para a PPU.**conferir essa info**
 
-por exempro se o registrador 0x4014 for setado 0x43 as memoria a serem transferidas são 0x4300 - 0x43ff.
+por exemplo se o registrador 0x4014 for setado 0x43 as memoria a serem transferidas são 0x4300 - 0x43ff.
 
 ### Registradores
 
-Os registradores utilizados pela PPU são alguns dos registradores I/O da memória da CPU. são eles 0x2000 - 0x2007 e 0x4014 para DMA.
+Os registradores utilizados pela PPU são alguns dos registradores I/O da memória da CPU. são eles 0x2000 - 0x2007 e 0x4014 para DMA. Os registradores 0x2000 - 0x2007 são espelhados 0x2008 - 0x3fff.
 
 A CPU controla a PPU
 
@@ -347,20 +354,20 @@ A CPU controla a PPU
 #### **0x2000** escrita
 
 - bit 0-1: seleciona um entre 4 tabelas de nome 0x2000(0), 0x2400(1), 0x2800(2), 0x2C00(3)
-- bit 2: especifica a quantidade que ira encrementar no endereço 0 -> 1, 1 -> 32
+- bit 2: especifica a quantidade que ira incrementar no endereço 0 -> 1(horizontal), 1 -> 32(vertical)
 - bit 3: Identifica em qual tabela padrão os sprites estão armazenados 0 -> 0x0000, 1 -> 0x1000
-- bit 4: Especifique o tamanho dos Sprites em pixzels 0 -> 8x8, 1 -> 8x16
-- bit 6: não utilizado
+- bit 4: Especifique o tamanho dos Sprites em pixels 0 -> 8x8, 1 -> 8x16
+- bit 6: muda o modo da PPU para mestre ou escravo. Isso não é utilizado pelo NES.
 - bit 7: indica quando NMI deve ocorrer após o V-Blank
 
 #### **0x2001** escrita
 
-- bit 0: 0 -> colorido, 1 -> monocromatico
+- bit 0: 0 -> colorido, 1 -> monocromático
 - bit 1: 8 pixels esquerda background 0 -> esconder, 1 -> mostrar
 - bit 2: 8 pixels esquerda sprite 0 -> esconder, 1 -> mostrar
-- bit 3: 0 -> esconde background, 1 -> mostrta backgound
+- bit 3: 0 -> esconde background, 1 -> mostrar backgound
 - bit 4: 0 -> esconde sprite, 1 -> mostra sprite
-- bit 5 - 7: indica a cor caso esteja no modo nonocroatico, ou a intencidade das cores no modo colorido
+- bit 5 - 7: indica a cor caso esteja no modo monocromático, ou a intensidade das cores no modo colorido
 
 #### **0x2002** leitura
 
@@ -379,7 +386,7 @@ Escreve o byte no endereço indicado pelo 0x2003
 
 #### **0x2005** 2x escrita
 
-possição do pixel que está no topo esquerdo da tela renderizado
+posição do pixel que está no topo esquerdo da tela renderizado
 
 #### **0x2006** 2x escrita
 
@@ -410,7 +417,7 @@ byte mais significativo do DMA do SPR-RAM
 
 ### tablea padrão
 
-cada tile é formado por 16 bytes, esses bytes são divididos em duas tabelas de 8bytes, a primeira é a tabela que representa o bit 0 e a segunda o bit 1 assim podendo gera até quato combinações (00, 01, 10, 11). Cda combinação é uma cor na tabela de cores.
+cada tile é formado por 16 bytes, esses bytes são divididos em duas tabelas de 8bytes, a primeira é a tabela que representa o bit 0 e a segunda o bit 1 assim podendo gera até quato combinações (00, 01, 10, 11). Cada combinação é uma cor na tabela de cores.
 
 exemplo
 
@@ -449,7 +456,7 @@ tabela resultant
 
 ### tabela de nomes
 
-30x32 (30 colunas com 32 linhas) de 8x8pixels(tiles). Nos dando uma resolução de 30x32tiles ou 240x252pixels.
+30x32 (30 colunas com 32 linhas) de 8x8pixels. Nos dando uma resolução de 30x32tiles ou 240x256pixels.
 
 **tile** tem um byte.
 
