@@ -335,7 +335,7 @@ VRAM armazena: Tabela de Padrões, Tabela de Nomes e Paletas de Cores.
 
 **SPR-RAM**: Memória separada utilizada para armazenar os atributos dos sprites é memoria da PPU.
 
-**DMA** direct memory access: é Possível transferir até 256 bytes da SPR-RAM da CPU de uma única vez. Para isso é preciso setar o registrador de I/O da CPU 0x4014 e serrão transferidos 256bytes da região 0xXX00 - 0xXXff para a PPU.**conferir essa info**
+**DMA** direct memory access: é Possível transferir até 256 bytes da CPU para SPR-RAM de uma única vez. Para isso é preciso setar o registrador de I/O da CPU 0x4014 e serrão transferidos 256bytes da região 0xXX00 - 0xXXff para a PPU.
 
 por exemplo se o registrador 0x4014 for setado 0x43 as memoria a serem transferidas são 0x4300 - 0x43ff.
 
@@ -421,7 +421,7 @@ cada tile é formado por 16 bytes, esses bytes são divididos em duas tabelas de
 
 exemplo
 
-tabela 0  
+tabela 0
 
 0 0 0 0 0 0 0 0
 0 0 0 0 0 0 0 0
